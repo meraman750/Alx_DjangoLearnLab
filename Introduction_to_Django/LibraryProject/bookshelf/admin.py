@@ -3,7 +3,7 @@ from .models import Book
 
 class BookAdmin(admin.ModelAdmin):
   list_display = ('id', 'title', 'author', 'pulication_year')
-  search_fileds = ["title", "author"]
+  search_fields = ["title", "author"]
   list_filter = ["publication_year"]
 
 admin.site.register(Book, BookAdmin)
