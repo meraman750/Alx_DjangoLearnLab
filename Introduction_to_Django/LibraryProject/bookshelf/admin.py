@@ -4,6 +4,6 @@ from .models import Book
 class BookAdmin(admin.ModelAdmin):
   list_display = ('id', 'title', 'author', 'pulication_year')
   search_fileds = ('title', 'author')
-  list_filter = ('pulication_year')
+  list_filter = ('pulication_year',)
 
 admin.site.register(Book, BookAdmin)
