@@ -10,4 +10,4 @@ def books_in_library(library_name):
 
 def librarian_of_library(library_name):
     library = Library.objects.get(name=library_name)
-    return Librarian.objects.filter(library=library)
+    return Librarian.objects.get(library=library)
