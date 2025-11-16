@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-u8xl&eznst+&3(b(2%^5!71#t^e49fzx#45ayg1&$i#gw*yuz#'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'csp.middleware.CSPMiddleware',
 
     'bookshelf',
 ]
@@ -127,3 +129,19 @@ AUTH_USER_MODEL = "bookshelf.CustomUser"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+SECURE_BROWSER_XSS_FILTER = True       
+X_FRAME_OPTIONS = 'DENY'               
+SECURE_CONTENT_TYPE_NOSNIFF = True    
+
+CSRF_COOKIE_SECURE = True               
+SESSION_COOKIE_SECURE = True            
+CSRF_COOKIE_HTTPONLY = True            
+
+SECURE_HSTS_SECONDS = 31536000      
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'", "https://cdnjs.cloudflare.com")
+CSP_STYLE_SRC = ("'self'", "https://cdnjs.cloudflare.com")
