@@ -134,7 +134,6 @@ SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = 'DENY'               
 SECURE_CONTENT_TYPE_NOSNIFF = True    
 
-CSRF_COOKIE_SECURE = True               
 SESSION_COOKIE_SECURE = True            
 CSRF_COOKIE_HTTPONLY = True            
 
@@ -145,3 +144,28 @@ SECURE_HSTS_PRELOAD = True
 CSP_DEFAULT_SRC = ("'self'",)
 CSP_SCRIPT_SRC = ("'self'", "https://cdnjs.cloudflare.com")
 CSP_STYLE_SRC = ("'self'", "https://cdnjs.cloudflare.com")
+
+SECURE_SSL_REDIRECT = True
+
+CSRF_COOKIE_SECURE = True
+
+X_FRAME_OPTIONS = 'DENY'
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+
+# =============================
+# Security Measures Implemented
+# =============================
+# 1. Enforced HTTPS with SECURE_SSL_REDIRECT=True
+# 2. HSTS applied with SECURE_HSTS_SECONDS=31536000
+# 3. Secure cookies enabled with SESSION_COOKIE_SECURE and CSRF_COOKIE_SECURE
+# 4. Additional HTTP headers:
+#    - X_FRAME_OPTIONS='DENY' (Clickjacking protection)
+#    - SECURE_CONTENT_TYPE_NOSNIFF=True (MIME sniffing protection)
+#    - SECURE_BROWSER_XSS_FILTER=True (XSS filtering)
+# 5. Deployment configuration includes SSL/TLS certificates and redirects from HTTP to HTTPS
+# =============================
+# Notes for Improvement:
+# - Monitor SSL certificate expiration
+# - Consider Content Security Policy (CSP) headers
+# - Enable monitoring for security vulnerabilities
