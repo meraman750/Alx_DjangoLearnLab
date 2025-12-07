@@ -8,7 +8,7 @@ from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView
 )
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 
 def register(request):
     if request.method == "POST":
@@ -99,19 +99,18 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return post.author == self.request.user
 
 
-def add_comment(request, post_id):
-    post = get_object_or_404(Post, pk=post_id)
+class CommentCreateView(LoginRequiredMixin, CreateView):
+    model = Comment
+    form_class = CommentForm
 
-    if request.method == "POST":
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.post = post
-            comment.author = request.user
-            comment.save()
-
-    return redirect("blog:post-detail", pk=post.pk)
-
+    def form_valid(self, form):
+        post = get_object_or_404(Post, pk=self.kwargs['pk'])
+        form.instance.post = post
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse("post-detail", kwargs={"pk": self.kwargs['pk']})
 
 # Edit comment
 class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
