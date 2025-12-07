@@ -4,6 +4,11 @@ from django.urls import reverse
 from django.utils import timezone
 
 # Create your models here.
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
 
 class Post(models.Model):
     title = models.CharField(max_length=200)
@@ -15,6 +20,7 @@ class Post(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     published = models.BooleanField(default=True)
+    tags = models.ManyToManyField(Tag, blank=True, related_name="posts")
 
     class Meta:
         ordering = ["-created_at"]
@@ -42,4 +48,6 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"Comment  by {self.author} on {self.post}"
+    
+
 

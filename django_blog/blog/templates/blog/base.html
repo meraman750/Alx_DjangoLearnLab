@@ -24,6 +24,10 @@
         {% for message in messages %}
         <div class="alert {{ message.tags }}">{{ message }}</div>
         {% endfor %}
+        <form method="GET" action="{% url 'search-posts' %}">
+          <input type="text" name="q" placeholder="Search posts..." />
+          <button type="submit">Search</button>
+        </form>
       </div>
       {% endif %} {% block content %}{% endblock %}
     </div>

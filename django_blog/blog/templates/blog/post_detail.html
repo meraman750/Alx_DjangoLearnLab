@@ -17,6 +17,16 @@
   {% endif %}
 </div>
 {% empty %}
+<p>
+    <strong>Tags:</strong>
+    {% for tag in post.tags.all %}
+        <a href="{% url 'posts-by-tag' tag.name %}">
+            #{{ tag.name }}
+        </a>
+    {% empty %}
+        No tags
+    {% endfor %}
+</p>
 <p>No comments yet.</p>
 {% endfor %} {% if user.is_authenticated %}
 <h4>Add a comment</h4>
