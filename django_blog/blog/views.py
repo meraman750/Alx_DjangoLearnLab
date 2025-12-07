@@ -9,6 +9,8 @@ from django.views.generic import (
 )
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy, reverse
+from django.db.models import Q
+
 
 def register(request):
     if request.method == "POST":
@@ -154,10 +156,11 @@ def search_posts(request):
         "results": results
     })
 
-def posts_by_tag(request, tag_name):
-    posts = Post.objects.filter(tags__name__iexact=tag_name)
+class PostByTagListView(ListView):
+    model = Post
+    template_name = 'blog/posts_by_tag.html'
+    context_object_name = 'posts'
 
-    return render(request, "blog/posts_by_tag.html", {
-        "tag": tag_name,
-        "posts": posts
-    })
+    def get_queryset(self):
+        tag_slug = self.kwargs.get("tag_slug")
+        return Post.objects.filter(tags__slug=tag_slug)
