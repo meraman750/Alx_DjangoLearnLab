@@ -3,10 +3,10 @@
 {% for post in results %}
     <div>
         <h3>
-            <a href="{% url 'post-detail' post.pk %}">{{ post.title }}</a>
+            <a href="{% url 'blog:post-detail' post.pk %}">{{ post.title }}</a>
         </h3>
         <p>{{ post.content|truncatewords:20 }}</p>
-    </div>
+    </div>  
 {% empty %}
     <p>No results found.</p>
 {% endfor %}

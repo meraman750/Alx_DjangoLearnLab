@@ -82,7 +82,7 @@ DATABASES = {
         'USER': 'blog_user',  # or postgres
         'PASSWORD': 'StrongPassword123',
         'HOST': 'localhost',
-        'PORT': '5432',
+        'PORT': '5433',
     }
 }
 
@@ -131,4 +131,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
-
