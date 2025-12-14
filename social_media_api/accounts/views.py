@@ -5,7 +5,6 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from django.shortcuts import get_object_or_404
-from .models import CustomUser
 from django.contrib.auth import get_user_model
 from .serializers import (
     RegisterSerializer,
@@ -13,7 +12,7 @@ from .serializers import (
     UserProfileSerializer
 )
 
-User = get_user_model()
+CustomUser = get_user_model()
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
