@@ -3,7 +3,7 @@ from django.contrib.auth import login
 from django.contrib import messages
 from .forms import UserCreationForm, UserUpdateForm, ProfileUpdateForm, PostForm, CommentForm
 from django.contrib.auth.decorators import login_required
-from .models import User, Profile, Post, Comment
+from .models import User, Profile, Post, Comment, Tag
 from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView
 )
@@ -71,6 +71,24 @@ class PostListView(ListView):
     context_object_name = "posts"
     paginate_by = 10
 
+    def get_queryset(self):
+        queryset = Post.objects.all().order_by("-created_at")
+
+        query = self.request.GET.get("q")
+        if query:
+            queryset = queryset.filter(
+                Q(title__icontains=query) |
+                Q(content__icontains=query) |
+                Q(author__username__icontains=query)
+            ).distinct()
+
+        return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["query"] = self.request.GET.get("q", "")
+        return context
+
 # Detail page (public)
 class PostDetailView(DetailView):
     model = Post
@@ -109,15 +127,20 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return HttpResponseForbidden("You are not allowed to edit this post.")
     
     def get_success_url(self):
-        return reverse_lazy("blog:profile", kwargs={"username": self.object.user.username})
+        return reverse_lazy("blog:profile", kwargs={"username": self.object.author.username})
 
     def dispatch(self, request, *args, **kwargs):
         obj = self.get_object()
         if obj.author != request.user:
             return redirect("blog:post-detail", pk=obj.pk)  # safe redirect
         return super().dispatch(request, *args, **kwargs)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Send tag names as a JS-safe string
+        context['initial_tags'] = ', '.join(tag.name for tag in self.object.tags.all())
+        return context
 
-# Delete post (only author)
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
     template_name = "blog/post_confirm_delete.html"
@@ -182,28 +205,18 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def get_success_url(self):
         return self.object.post.get_absolute_url()
-    
-def search_posts(request):
-    query = request.GET.get("q")
-    results = []
-
-    if query:
-        results = Post.objects.filter(
-            Q(title__icontains=query) |
-            Q(content__icontains=query) |
-            Q(tags__name__icontains=query)
-        ).distinct()
-
-    return render(request, "blog/search_results.html", {
-        "query": query,
-        "results": results
-    })
 
 class PostByTagListView(ListView):
     model = Post
-    template_name = 'blog/posts_by_tag.html'
+    template_name = 'blog/post_list.html'
     context_object_name = 'posts'
+    paginate_by = 10
 
     def get_queryset(self):
-        tag_slug = self.kwargs.get("tag_slug")
-        return Post.objects.filter(tags__slug=tag_slug)
+        self.tag = get_object_or_404(Tag, slug=self.kwargs['tag_slug'])
+        return Post.objects.filter(tags=self.tag).order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tag'] = self.tag
+        return context

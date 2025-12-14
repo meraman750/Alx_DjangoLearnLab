@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Profile, Post, Comment, Tag
-
+from django.utils.text import slugify
 
 class UserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -35,29 +35,36 @@ class ProfileUpdateForm(forms.ModelForm):
 class PostForm(forms.ModelForm):
     tags = forms.CharField(
         required=False,
-        help_text="Enter tags separated by commas"
+        help_text="Comma-separated tags"
     )
 
     class Meta:
         model = Post
         fields = ["title", "content", "tags", "photo"]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk:
+            self.fields['tags'].initial = ', '.join([tag.name for tag in self.instance.tags.all()])
+    
     def save(self, commit=True):
-        post = super().save(commit=commit)
-
+        post = super().save(commit=False)
         if commit:
             post.save()
 
-        # Process tags
-        tags_str = self.cleaned_data.get("tags", "")
-        tag_names = [t.strip() for t in tags_str.split(",") if t.strip()]
+        tag_names = self.cleaned_data.get("tags")
+        if not tag_names:
+            post.tags.clear()
+        else:
+            tag_list = [name.strip() for name in tag_names.split(",") if name.strip()]
+            tags_to_set = []
+            for name in tag_list:
+                slug = slugify(name)
+                tag_obj, created = Tag.objects.get_or_create(slug=slug, defaults={"name": name})
+                tags_to_set.append(tag_obj)
 
-        tag_objs = []
-        for name in tag_names:
-            tag, created = Tag.objects.get_or_create(name=name)
-            tag_objs.append(tag)
+            post.tags.set(tags_to_set)
 
-        post.tags.set(tag_objs)
         return post
 
 class CommentForm(forms.ModelForm):
